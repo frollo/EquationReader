@@ -1,12 +1,14 @@
 #!/usr/bin/python
 import sys
 import re
+import string
 
 variables = {}
 outs = {}
 monomial = "([a-zA-z]+\d+)"
 mn = re.compile(monomial)
 
+a = 0
 def extractValues(strin):
         xAddr1 = strin[2]
         xAddr2 = strin[4]
@@ -30,7 +32,8 @@ fin = open(sys.argv[1], "r")
 
 
 for line in fin:
-    if line.find("inputs" , beg=0, end=len(line)):
+    b=len(line)
+    if line.find("inputs" , a, b):
         #Creation of the x set
         xLine = next(fin)
         xValueLine = next(fin)
@@ -40,15 +43,19 @@ for line in fin:
             raise Exception("equationReader: you need to provide a starting value for each x inserted")
         for i in range(len(ins)):
             variables[ins[i]] = bool(insValues[i])
-    else if line.find("outputs", beg=0, end=len(line)):
-        #Creation of the y set
-        yLine = next(fin)
-        ins = string.split(xLine, " ")
-        for y in ins:
-            outs [y] = None
-    else if line.find("begin", beg = 0, end = len(line)):
-        #When the equations start we get to the next cicle which performs the calculations
-        break
+    else:
+        b=len(line)
+        if line.find("outputs", a, b):
+            #Creation of the y set
+            yLine = next(fin)
+            ins = string.split(xLine, " ")
+            for y in ins:
+                outs [y] = None
+            else:
+                b=len(line)
+                if line.find("begin", a, b):
+                    #When the equations start we get to the next cicle which performs the calculations
+                    break
 
 #y = x + z
 equation_XOR = re.compile(monomial + " = " + monomial + " \+ " + monomial + "|(0|1)")
@@ -58,7 +65,10 @@ equation_AND = re.compile(monomial + " = " + monomial + " \* " + monomial + "|(0
 equation_ASSIGNEMENT = re.compile(monomial + " = " + monomial + "|(0|1)")
 
 for line in fin:
-    if !(line.find("end", beg = 0, end = len(line))):
+    b=len(line)
+    if line.find("end", a, b):
+        break
+    else:
         tmp = string.split(line, " ")
         if equation_XOR.match(line):
             xdict = extractValues(tmp)
@@ -92,8 +102,6 @@ for line in fin:
                         outs[yAddr] = y
                 else:
                     raise Exception("equationReader: malformed equation " + line)
-    else:
-        break
 
 #Printing out the results
 close(fin)
