@@ -19,10 +19,7 @@ for line in fin:
         if len(ins) != len(insValues):
             raise Exception("equationReader: you need to provide a starting value for each x inserted")
         for i in range(len(ins)):
-            tmp = int(insValues[i])
-            if (tmp != 0) & (tmp != 1):
-                raise Exception("equationReader: you need to provide binary values")
-            variables[ins[i]] = tmp
+            variables[ins[i]] = bool(insValues[i])
     else if line.find("outputs", beg=0, end=len(line)):
         #Creation of the y set
         yLine = next(fin)
@@ -53,6 +50,13 @@ for line in fin:
                 x1 = variables[xAddr1]
             else:
                 raise Exception("equationReader: variable " + xAddr1 + " not found")
-            
+            if mn.match(xAddr2):
+                if xAddr2 in variables:
+                    x2 = variables[xAddr2]
+                else:
+                    raise Exception("equationReader: variable " + xAddr2 + " not found")
+            else:
+                x2 = int(xAddr2)
+            variables[yAddr] =
     else:
         break
