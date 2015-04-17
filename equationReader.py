@@ -75,5 +75,30 @@ for line in fin:
                 variables[yAddr] = y
                 if yAddr in outs:
                     outs[yAddr] = y
+            else:
+                if equation_ASSIGNEMENT.match(line):
+                    yAddr = tmp[0]
+                    xAddr = tmp[2]
+                    if mn.match(xAddr):
+                        if xAddr in variables:
+                            x = variables[xAddr]
+                        else:
+                            raise Exception("equationReader: variable " + xAddr + " not found")
+                    else:
+                        x = bool(xAddr)
+                    y = x
+                    variables[yAddr] = y
+                    if yAddr in outs:
+                        outs[yAddr] = y
+                else:
+                    raise Exception("equationReader: malformed equation " + line)
     else:
         break
+
+#Printing out the results
+close(fin)
+fout = open(sys.argv[2], "r")
+for key, value in d.iteritems():
+    fout.write(key + " = {}\n".format(value))
+
+close(fout)
