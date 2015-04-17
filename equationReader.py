@@ -2,13 +2,33 @@
 import sys
 import re
 
+variables = {}
+outs = {}
+monomial = "([a-zA-z]+\d+)"
+mn = re.compile(monomial)
+
+def extractValues(strin):
+        xAddr1 = strin[2]
+        xAddr2 = strin[4]
+        if xAddr1 in variables:
+            x1 = variables[xAddr1]
+        else:
+            raise Exception("equationReader: variable " + xAddr1 + " not found")
+        if mn.match(xAddr2):
+            if xAddr2 in variables:
+                x2 = variables[xAddr2]
+            else:
+                raise Exception("equationReader: variable " + xAddr2 + " not found")
+        else:
+            x2 = bool(xAddr2)
+        return {'x1':x1, 'x2':x2}
+
 if len(sys.argv) != 3:
     raise Exception("Usage: equationReader <input file> <output file>")
 
 fin = open(sys.argv[1], "r")
 
-variables = {}
-outs = {}
+
 for line in fin:
     if line.find("inputs" , beg=0, end=len(line)):
         #Creation of the x set
@@ -30,8 +50,6 @@ for line in fin:
         #When the equations start we get to the next cicle which performs the calculations
         break
 
-monomial = "([a-zA-z]+\d+)"
-mn = re.compile(monomial)
 #y = x + z
 equation_XOR = re.compile(monomial + " = " + monomial + " \+ " + monomial + "|(0|1)")
 #y = x * z
@@ -43,20 +61,19 @@ for line in fin:
     if !(line.find("end", beg = 0, end = len(line))):
         tmp = string.split(line, " ")
         if equation_XOR.match(line):
+            xdict = extractValues(tmp)
             yAddr = tmp[0]
-            xAddr1 = tmp[2]
-            xAddr2 = tmp[4]
-            if xAddr1 in variables:
-                x1 = variables[xAddr1]
-            else:
-                raise Exception("equationReader: variable " + xAddr1 + " not found")
-            if mn.match(xAddr2):
-                if xAddr2 in variables:
-                    x2 = variables[xAddr2]
-                else:
-                    raise Exception("equationReader: variable " + xAddr2 + " not found")
-            else:
-                x2 = int(xAddr2)
-            variables[yAddr] =
+            y = xdict['x1'] ^ xdict['x2']
+            variables[yAddr] = y
+            if yAddr in outs:
+                outs[yAddr] = y
+        else:
+            if equation_AND.match(line):
+                xdict = extractValues(tmp)
+                yAddr = tmp[0]
+                y = xdict['x1'] * xdict['x2']
+                variables[yAddr] = y
+                if yAddr in outs:
+                    outs[yAddr] = y
     else:
         break
