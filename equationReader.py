@@ -32,3 +32,27 @@ for line in fin:
     else if line.find("begin", beg = 0, end = len(line)):
         #When the equations start we get to the next cicle which performs the calculations
         break
+
+monomial = "([a-zA-z]+\d+)"
+mn = re.compile(monomial)
+#y = x + z
+equation_XOR = re.compile(monomial + " = " + monomial + " \+ " + monomial + "|(0|1)")
+#y = x * z
+equation_AND = re.compile(monomial + " = " + monomial + " \* " + monomial + "|(0|1)")
+#y = x
+equation_ASSIGNEMENT = re.compile(monomial + " = " + monomial + "|(0|1)")
+
+for line in fin:
+    if !(line.find("end", beg = 0, end = len(line))):
+        tmp = string.split(line, " ")
+        if equation_XOR.match(line):
+            yAddr = tmp[0]
+            xAddr1 = tmp[2]
+            xAddr2 = tmp[4]
+            if xAddr1 in variables:
+                x1 = variables[xAddr1]
+            else:
+                raise Exception("equationReader: variable " + xAddr1 + " not found")
+            
+    else:
+        break
